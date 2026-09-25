@@ -1,3 +1,10 @@
 sentence-transformers
 faiss-cpu
 numpy
+streamlit
+groq
+python-dotenv
+langchain
+langchain-community
+langchain-huggingface
+langchain-text-splitters
