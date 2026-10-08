@@ -1,26 +1,30 @@
-# safety.py
+from semantic_safety import semantic_safety_score
 
-# Simple prototype safety categories
+
 NORMAL = "normal"
 SENSITIVE = "sensitive"
 
+SEMANTIC_THRESHOLD = 0.60
 
-def check_safety(query):
+
+def keyword_safety_check(query):
     """
-    Classify a user query for the prototype safety layer.
+    Detect explicit safety-sensitive wording.
 
-    This is intentionally conservative and keyword-based.
-    It is NOT a clinical risk assessment system.
+    This is a simple first-pass detector and is not
+    a clinical risk assessment system.
     """
 
     query_lower = query.lower()
 
     sensitive_terms = [
         "suicide",
+        "suicidal",
         "kill myself",
         "end my life",
         "self harm",
         "self-harm",
+        "selfharm",
         "hurt myself",
         "want to die",
         "don't want to live",
@@ -29,7 +33,34 @@ def check_safety(query):
 
     for term in sensitive_terms:
         if term in query_lower:
-            return SENSITIVE
+            return True
+
+    return False
+
+
+def check_safety(query):
+    """
+    Combined safety detection.
+
+    Layer 1:
+        Keyword detection
+
+    Layer 2:
+        Semantic similarity detection
+
+    If either layer detects safety-sensitive intent,
+    return SENSITIVE.
+    """
+
+    # Layer 1: explicit keyword detection
+    if keyword_safety_check(query):
+        return SENSITIVE
+
+    # Layer 2: semantic detection
+    semantic_score = semantic_safety_score(query)
+
+    if semantic_score >= SEMANTIC_THRESHOLD:
+        return SENSITIVE
 
     return NORMAL
 
